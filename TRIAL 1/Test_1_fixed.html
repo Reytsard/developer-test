@@ -127,12 +127,21 @@
       text-align: center;
     }
 
+    /*BUG FIX 5: Bug - stats-grid used a fixed 4-column grid so items overflowed or squished on narrow screens; Why - grid with repeat(4, 1fr) forces exactly 4 columns regardless of available width, with no ability to wrap; switched to flexbox with flex-wrap so items reflow into a column layout when width is insufficient*/
     .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 32px;
       max-width: 900px;
       margin: 0 auto;
+    }
+
+    /* flex: 1 1 180px lets each item grow/shrink but not go below 180px;
+       when the row can no longer fit all 4, items wrap to the next line */
+    .stat-item {
+      flex: 1 1 180px;
+      min-width: 140px;
     }
 
     .stat-item h3 {
