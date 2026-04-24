@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Launchmen — Task Manager</title>
+</head>
+<body>
+  <h1>Task Manager</h1>
+
+  <section>
+    <h2>Add Task</h2>
+    <input type="text" id="task-title" placeholder="Task title" />
+    <button onclick="addTask()">Add Task</button>
+    <p id="add-error" style="color: red;"></p>
+  </section>
+
+  <section>
+    <h2>Tasks</h2>
+    <ul id="task-list"></ul>
+  </section>
+
+  <script>
+    const API = 'http://localhost:3000';
+
+    async function loadTasks() {
+      const res = await fetch(`${API}/tasks`);
+      const data = await res.json();
+      renderTasks(data.tasks);
+    }
+
+    function renderTasks(tasks) {
+      const list = document.getElementById('task-list');
+      list.innerHTML = '';
+      tasks.forEach(function (task) {
+        const li = document.createElement('li');
+        li.textContent = `[${task.status}] ${task.title}  `;
+
+        if (task.status !== 'done') {
+          const doneBtn = document.createElement('button');
+          doneBtn.textContent = 'Mark Done';
+          doneBtn.onclick = function () { markDone(task.id); };
+          li.appendChild(doneBtn);
+          li.appendChild(document.createTextNode(' '));
+        }
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.onclick = function () { deleteTask(task.id); };
+        li.appendChild(delBtn);
+
+        list.appendChild(li);
+      });
+    }
+
+    async function addTask() {
+      const titleInput = document.getElementById('task-title');
+      const errorEl = document.getElementById('add-error');
+      const title = titleInput.value.trim();
+      errorEl.textContent = '';
+
+      if (!title) {
+        errorEl.textContent = 'Title is required.';
+        return;
+      }
+
+      const res = await fetch(`${API}/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title }),
+      });
+
+      if (res.ok) {
+        titleInput.value = '';
+        loadTasks();
+      } else {
+        const data = await res.json();
+        errorEl.textContent = data.message || 'Failed to add task.';
+      }
+    }
+
+    async function markDone(id) {
+      await fetch(`${API}/tasks/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'done' }),
+      });
+      loadTasks();
+    }
+
+    async function deleteTask(id) {
+      await fetch(`${API}/tasks/${id}`, { method: 'DELETE' });
+      loadTasks();
+    }
+
+    loadTasks();
+  </script>
+</body>
+</html>

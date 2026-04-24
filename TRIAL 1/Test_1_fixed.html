@@ -44,7 +44,8 @@
       color: white;
       text-align: center;
       padding: 80px 20px;
-      margin-top: 0;
+      /*BUG FIX 1: Bug - margin-top was 0 so hero content started at the very top of the page; Why - position:fixed removes the navbar from document flow, meaning the page body starts at y:0 and the hero rendered hidden underneath the navbar*/
+      margin-top: 52px;
     }
 
     .hero h1 {
@@ -216,13 +217,15 @@
   </div>
 
   <script>
+    /*BUG FIX 4: Bug - handleCTA() fired an alert() dialog instead of navigating; Why - alert() only displays a popup and never updates window.location, so clicking the button never scrolled or linked to #sign-up*/
     function handleCTA() {
-      alert("Welcome to Launchmen! Redirecting to signup...");
+      window.location.href = "#sign-up";
     }
 
     document.addEventListener("DOMContentLoaded", function () {
       const cards = document.querySelectorAll(".card");
-      cards.froEach(function (card) {
+      /*BUG FIX 2: Bug - "froEach" was a typo of the built-in "forEach"; Why - froEach does not exist on NodeList so JavaScript threw a TypeError at runtime, stopping execution and preventing all card hover listeners from ever being attached*/
+      cards.forEach(function (card) {
         card.addEventListener("mouseenter", function () {
           card.style.transform = "translateY(-4px)";
           card.style.transition = "transform 0.2s ease";
@@ -234,7 +237,10 @@
 
       const statItems = document.querySelectorAll(".stat-item h3");
       statItems.forEach(function (el) {
-        const target = parseFloat(el.textContent);
+        /*BUG FIX 3: Bug - the "%" symbol was missing from the animated 94% counter; Why - parseFloat("94%") returns 94 which Number.isInteger() treats as true, so the integer-only branch always ran and never appended "%" back to the displayed value*/
+        const originalText = el.textContent;
+        const hasPct = originalText.includes("%");
+        const target = parseFloat(originalText);
         if (!isNaN(target)) {
           let current = 0;
           const step = target / 40;
@@ -244,16 +250,14 @@
               current = target;
               clearInterval(timer);
             }
-            el.textContent = Number.isInteger(target)
-              ? Math.round(current)
-              : current.toFixed(0) + "%";
+            el.textContent = Math.round(current) + (hasPct ? "%" : "");
           }, 30);
         }
       });
     });
   </script>
 
-  <footer>
+  <footer id="sign-up">
     &copy; 2026 Launchmen. All rights reserved.
   </footer>
 
