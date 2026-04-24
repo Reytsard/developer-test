@@ -118,11 +118,11 @@ app.listen(3000, () => {
 // inside a loop for every single post to retrieve its author. That is up to 51
 // database round-trips (1 post query + 1 author query × 50 posts).
 //
-// At scale each round-trip carries network latency and query-parsing overhead,
+// At  a large scale scenario each request carries network latency and query-parsing overhead,
 // and the database has no chance to batch or optimise the work. The page slows
 // down because it waits for 50 sequential async calls to complete.
 //
-// A secondary issue: the author query uses string interpolation
+// A secondary issue: the author query uses direct string interpolation/inputs
 // (`WHERE id = ${post.author_id}`), which is a SQL injection vulnerability.
 //
 // ─────────────────────────────────────────────────────────────
@@ -156,5 +156,8 @@ app.listen(3000, () => {
 // key index for the join. Add a supporting index if not already present:
 //
 //   CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts (created_at DESC);
+//
+//  We can also prevent this vulnerability by using the prepare statement, this method validates and reformats preset commands into database-safe commands
+//  an example is when the space character, it will turn into %(value) and it will be turned into a string.
 //
 // ============================================================
