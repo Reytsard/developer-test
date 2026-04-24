@@ -130,7 +130,7 @@
     /*BUG FIX 5: Bug - stats-grid did not display in a 4-column row; the stat items stacked or wrapped unpredictably because no explicit column structure was defined; Why - without grid-template-columns: repeat(4, 1fr), the browser had no instruction to place all four items in a single row, so they fell back to default block/flow behavior; fixed by switching to CSS Grid with four equal columns so all stat items always render side-by-side in one row*/
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
       gap: 32px;
       max-width: 900px;
       margin: 0 auto;
